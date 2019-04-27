@@ -88,14 +88,6 @@ Player.prototype.move = function(){
 	
 	//Vertical colission check
 	this.moveRightWithWeapons(this.movement_speeds[0]);
-	var objects_colided = game.checkColissions(this, false);
-	if(objects_colided != null){
-		if(this.movement_speeds[0] > 0)
-			this.moveRightWithWeapons(objects_colided.pos[0] + objects_colided.size[0] - this.pos[0]);
-		else
-			this.moveLeftWithWeapons(this.pos[0] + this.size[0] - objects_colided.pos[0]);
-		this.movement_speeds[0] = 0;
-	}
 	var boundries_colided = game.isObjectOutside(this, false);
 	if(boundries_colided == game.BoundriesEnum.left){
 		this.moveRightWithWeapons(-this.pos[0]);
@@ -108,14 +100,6 @@ Player.prototype.move = function(){
 	
 	//Horizontal colission check
 	this.moveDownWithWeapons(this.movement_speeds[1]);
-	var objects_colided = game.checkColissions(this, false);
-	if(objects_colided != null){
-		if(this.movement_speeds[1] > 0)
-			this.moveUpWithWeapons(this.pos[1] + this.size[1] - objects_colided.pos[1]);
-		else
-			this.moveDownWithWeapons(objects_colided.pos[1] + objects_colided.size[1] - this.pos[1]);
-		this.movement_speeds[1] = 0;
-	}
 	var boundries_colided = game.isObjectOutside(this, false);
 	if(boundries_colided == game.BoundriesEnum.up){
 		this.moveDownWithWeapons(-this.pos[1]);

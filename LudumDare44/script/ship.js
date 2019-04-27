@@ -5,6 +5,7 @@ function Ship(sprite_filename, pos, size, friendly, health){
 	this.createWeapons();
 	
 	this.health = health;
+	this.outside = false;
 }
 
 Ship.prototype = Object.create(SidedSolidObject.prototype);
@@ -52,4 +53,10 @@ Ship.prototype.moveRightWithWeapons = function(amount){
 
 Ship.prototype.damage = function(amount){
 	this.health -= amount;
+}
+
+Ship.prototype.shootAll = function(){
+	for(var i = 0; i < this.weapons.length; i++){
+		this.weapons[i].shoot();
+	}
 }
