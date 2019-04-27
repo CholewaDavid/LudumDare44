@@ -35,8 +35,8 @@ window.onkeydown = function(event){
 		case 39:
 			game.player.enableMovementDirection(game.player.MovementEnum.right);
 			break;
-		case 27:
-			game.chooseSelectedBuilding(null);
+		case 32:
+			game.player.shotButtonHeld = true;
 			break;
 	}
 }
@@ -58,6 +58,9 @@ window.onkeyup = function(event){
 		case 68:
 		case 39:
 			game.player.disableMovementDirection(game.player.MovementEnum.right);
+			break;
+		case 32:
+			game.player.shotButtonHeld = false;
 			break;
 		}
 }

@@ -1,5 +1,5 @@
 function Player(){
-	SidedSolidObject.call(this, "images/player.svg", [30, 10], [70, 40], true);
+	Ship.call(this, "images/player.svg", [30, 10], [70, 40], true, 100);
 	
 	this.MovementEnum = Object.freeze({"left": 1, "up": 2, "right": 3, "down": 4});
 	
@@ -9,12 +9,22 @@ function Player(){
 	this.acceleration = 2;
 	this.inertia = 0.5;
 	this.movementEnabled = false;
+	this.shotButtonHeld = false;
 }
 
-Player.prototype = Object.create(SidedSolidObject.prototype);
+Player.prototype = Object.create(Ship.prototype);
 
 Player.prototype.update = function(){
 	this.move();
+	if(this.shotButtonHeld)
+		this.shoot();
+}
+
+Player.prototype.shoot = function(){
+	for(var i = 0; i < this.weapons.length; i++){
+		if(this.weapons[i].automatic)
+			this.weapons[i].shoot();
+	}
 }
 
 Player.prototype.move = function(){
@@ -76,25 +86,46 @@ Player.prototype.move = function(){
 		}
 	}
 	
-	this.moveRight(this.movement_speeds[0]);
-	var colided = game.checkColissions(this, false);
-	if(colided != null){
+	//Vertical colission check
+	this.moveRightWithWeapons(this.movement_speeds[0]);
+	var objects_colided = game.checkColissions(this, false);
+	if(objects_colided != null){
 		if(this.movement_speeds[0] > 0)
-			this.moveRight(colided.pos[0] + colided.size[0] - this.pos[0]);
+			this.moveRightWithWeapons(objects_colided.pos[0] + objects_colided.size[0] - this.pos[0]);
 		else
-			this.moveLeft(this.pos[0] + this.size[0] - colided.pos[0]);
+			this.moveLeftWithWeapons(this.pos[0] + this.size[0] - objects_colided.pos[0]);
+		this.movement_speeds[0] = 0;
+	}
+	var boundries_colided = game.isObjectOutside(this, false);
+	if(boundries_colided == game.BoundriesEnum.left){
+		this.moveRightWithWeapons(-this.pos[0]);
+		this.movement_speeds[0] = 0;
+	}
+	else if(boundries_colided == game.BoundriesEnum.right){
+		this.moveLeftWithWeapons(this.pos[0] + this.size[0] - canvas.width);
 		this.movement_speeds[0] = 0;
 	}
 	
-	this.moveDown(this.movement_speeds[1]);
-	var colided = game.checkColissions(this, false);
-	if(colided != null){
+	//Horizontal colission check
+	this.moveDownWithWeapons(this.movement_speeds[1]);
+	var objects_colided = game.checkColissions(this, false);
+	if(objects_colided != null){
 		if(this.movement_speeds[1] > 0)
-			this.moveUp(this.pos[1] + this.size[1] - colided.pos[1]);
+			this.moveUpWithWeapons(this.pos[1] + this.size[1] - objects_colided.pos[1]);
 		else
-			this.moveDown(colided.pos[1] + colided.size[1] - this.pos[1]);
+			this.moveDownWithWeapons(objects_colided.pos[1] + objects_colided.size[1] - this.pos[1]);
 		this.movement_speeds[1] = 0;
 	}
+	var boundries_colided = game.isObjectOutside(this, false);
+	if(boundries_colided == game.BoundriesEnum.up){
+		this.moveDownWithWeapons(-this.pos[1]);
+		this.movement_speeds[1] = 0;
+	}
+	else if(boundries_colided == game.BoundriesEnum.down){
+		this.moveUpWithWeapons(this.pos[1] + this.size[1] - canvas.height);
+		this.movement_speeds[1] = 0;
+	}
+	
 }
 
 Player.prototype.enableMovementDirection = function(dir){
@@ -107,4 +138,8 @@ Player.prototype.enableMovementDirection = function(dir){
 
 Player.prototype.disableMovementDirection = function(dir){
 	this.movement_directions[dir-1] = false;
+}
+
+Player.prototype.createWeapons = function(){
+	this.weapons.push(new DefaultWeapon([this.pos[0] + 70, this.pos[1] + 5]));
 }
