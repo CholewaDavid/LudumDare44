@@ -19,7 +19,7 @@ Weapon.prototype.update = function(){
 }
 
 Weapon.prototype.canShoot = function(){
-	return this.curr_cooldown == 0 && (this.ammo == null || this.ammo > 0);
+	return this.curr_cooldown <= 0 && (this.ammo == null || this.ammo > 0);
 }
 
 Weapon.prototype.getShotPosition = function(){

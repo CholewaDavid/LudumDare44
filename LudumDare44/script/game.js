@@ -3,7 +3,7 @@ function Game(){
 	this.player = new Player();
 	
 	this.BoundriesEnum = Object.freeze({"left": 1, "up": 2, "right": 3, "down": 4, "none": 5});
-	this.LootItemEnum = Object.freeze({"damage_up": 1, "attack_speed_up": 2, "health": 3});
+	this.LootItemEnum = Object.freeze({"damage_up": 1, "attack_speed_up": 2, "health": 3, "rocket_launcher": 4, "max_health": 5});
 	
 	this.splash_screen = new DrawableObject("images/splash.svg", [0, 0]);
 	
@@ -22,6 +22,9 @@ function Game(){
 	this.max_environmentSpeed = 100;
 	this.fast_travel_time = 0;
 	this.fast_travel_max_time = 180;
+	this.player_dying_time = 0;
+	this.player_dying_max_time = 180;
+	this.end_splash_screen = new EndScreen();
 	
 	this.shop = null;
 	
@@ -30,9 +33,11 @@ function Game(){
 	
 	this.shop_item_list = [];
 	this.junkyard_item_list = [];
+	this.weapon_item_list = [];
 	
 	this.fillShopItemList();
 	this.fillJunkyardItemList();
+	this.fillWeaponItemList();
 }
 
 Game.prototype.draw = function(){
@@ -42,16 +47,33 @@ Game.prototype.draw = function(){
 
 	if(this.stage == 0)
 		this.splash_screen.draw();
-	if(this.shop != null)
-		this.shop.draw();
 	
-	this.player.drawWithWeapons();
+	if(this.shop != null){
+		if(this.active_shop){
+			if(this.player != null)
+				this.player.drawWithWeapons();
+			this.shop.draw();
+		}
+		else{
+			this.shop.draw();
+			if(this.player != null)
+				this.player.drawWithWeapons();
+		}
+	}
+	else
+		if(this.player != null)
+			this.player.drawWithWeapons();
+	
 	for(var i = 0; i < this.shots.length; i++)
 		this.shots[i].draw();
+	
+	if(this.player_dying_time >= this.player_dying_max_time)
+		this.end_splash_screen.draw();
 }
 
 Game.prototype.update = function(){
-	$("#span_health")[0].innerHTML = this.player.health.toString() + " HP";
+	if(this.player != null)
+		$("#span_health")[0].innerHTML = this.player.health.toString() + " HP";
 	$("#span_score")[0].innerHTML = this.points.toString() + " points";
 	
 	this.background.update();
@@ -77,9 +99,19 @@ Game.prototype.update = function(){
 			this.shop.move(this.environmentSpeed);
 	}
 	else{
-		this.player.updateWithWeapons();
+		//Player
+		if(this.player != null){
+			if(this.player.health <= 0)
+				this.player_dying_time++;
+			this.player.updateWithWeapons();
+			if(this.player_dying_time >= this.player_dying_max_time)
+				this.player = null;
+		}
+		
+		//Enemy ships
 		for(var i = 0; i < this.enemyShips.length; i++)
 			this.enemyShips[i].updateWithWeapons();
+		//Shots
 		for(var i = 0; i < this.shots.length; i++)
 			this.shots[i].update();
 		
@@ -89,7 +121,7 @@ Game.prototype.update = function(){
 		//Shop
 		if(this.shop != null && this.enemyShips.length == 0){
 			this.shop.move(this.environmentSpeed);
-			if(this.shop.background.pos[0] <= 0){
+			if(this.shop.background.pos[0] <= 0 && this.player_dying_time == 0){
 				this.active_shop = true;
 				this.shop.openShopMenu();
 			}
@@ -129,8 +161,10 @@ Game.prototype.checkColissions = function(solid_object, sided, friendly){
 				return this.enemyShips[i];
 		}
 		if(!sided || (sided && !friendly)){
-			if(this.player.colission(solid_object))
-				return this.player;
+			if(this.player != null){
+				if(this.player.colission(solid_object))
+					return this.player;
+			}
 		}
 	}
 }
@@ -241,17 +275,29 @@ Game.prototype.getLootItem = function(item){
 		case this.LootItemEnum.attack_speed_up:
 			return new LootAttackSpeedUp();
 			break;
+		case this.LootItemEnum.max_health:
+			return new LootMaxHealth();
+			break;
+		case this.LootItemEnum.rocket_launcher:
+			return new LootWeaponRocketLauncher();
+			break;
 	}
 }
 
 Game.prototype.fillShopItemList = function(){
 	this.shop_item_list.push(this.LootItemEnum.damage_up);
 	this.shop_item_list.push(this.LootItemEnum.attack_speed_up);
+	this.shop_item_list.push(this.LootItemEnum.max_health);
 }
 
 Game.prototype.fillJunkyardItemList = function(){
 	this.junkyard_item_list.push(this.LootItemEnum.damage_up);
 	this.junkyard_item_list.push(this.LootItemEnum.attack_speed_up);
+	this.junkyard_item_list.push(this.LootItemEnum.max_health);
+}
+
+Game.prototype.fillWeaponItemList = function(){
+	this.weapon_item_list.push(this.LootItemEnum.rocket_launcher);
 }
 
 Game.prototype.handleStage = function(){

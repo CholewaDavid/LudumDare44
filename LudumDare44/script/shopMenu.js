@@ -31,7 +31,8 @@ ShopMenu.prototype.pressButton = function(){
 }
 
 ShopMenu.prototype.generateChoices = function(amount){
-	for(var i = 0; i < amount; i++){
+	this.choices.push(game.getLootItem(game.weapon_item_list[Math.floor(Math.random() * game.weapon_item_list.length)]));
+	for(var i = 1; i < amount; i++){
 		this.choices.push(game.getLootItem(game.shop_item_list[Math.floor(Math.random() * game.shop_item_list.length)]));
 	}
 }
