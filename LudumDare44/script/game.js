@@ -19,7 +19,7 @@ function Game(){
 	this.active_shop = false;
 	this.boss = false;
 	this.environmentSpeed = 3;
-	this.max_environmentSpeed = 20;
+	this.max_environmentSpeed = 100;
 	this.fast_travel_time = 0;
 	this.fast_travel_max_time = 180;
 	
@@ -51,6 +51,9 @@ Game.prototype.draw = function(){
 }
 
 Game.prototype.update = function(){
+	$("#span_health")[0].innerHTML = this.player.health.toString() + " HP";
+	$("#span_score")[0].innerHTML = this.points.toString() + " points";
+	
 	this.background.update();
 	if(this.fast_travel){
 		this.fast_travel_time++;
