@@ -29,15 +29,29 @@ window.onkeydown = function(event){
 			break;
 		case 65:
 		case 37:
-			game.player.enableMovementDirection(game.player.MovementEnum.left);
+			if(game.active_shop)
+				game.shop.changeButton(-1);
+			else
+				game.player.enableMovementDirection(game.player.MovementEnum.left);
 			break;
 		case 68:
 		case 39:
-			game.player.enableMovementDirection(game.player.MovementEnum.right);
+			if(game.active_shop)
+				game.shop.changeButton(1);
+			else
+				game.player.enableMovementDirection(game.player.MovementEnum.right);
 			break;
 		case 32:
-			game.player.shotButtonHeld = true;
+			if(game.stage == 0)
+				game.start_game = true;
+			else if(game.active_shop)
+				game.shop.pressButton();
+			else
+				game.player.shotButtonHeld = true;
 			break;
+		case 27:
+			if(game.active_shop)
+				game.shop.leaveShop();
 	}
 }
 
