@@ -29,14 +29,15 @@ JunkyardMenu.prototype.pressButton = function(){
 }
 
 JunkyardMenu.prototype.generateChoices = function(amount){
-	for(var i = 0; i < amount; i++){
+	this.choices.push(new LootHealth());
+	for(var i = 1; i < amount; i++){
 		this.choices.push(game.getLootItem(game.junkyard_item_list[Math.floor(Math.random() * game.junkyard_item_list.length)]));
 	}
 }
 
 JunkyardMenu.prototype.generateButtons = function(){
 	for(var i = 0; i < this.choices.length; i++){
-		this.buttons.push(new LootButton([this.first_btn_pos[0] + 5 * i + this.btn_width * i, this.first_btn_pos[0]], this.choices[i]));
+		this.buttons.push(new LootButton([this.first_btn_pos[0] + 5 * i + this.btn_width * i, this.first_btn_pos[0]], this.choices[i], false));
 	}
 	
 	this.buttons[0].active = true;

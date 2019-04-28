@@ -3,7 +3,7 @@ function Game(){
 	this.player = new Player();
 	
 	this.BoundriesEnum = Object.freeze({"left": 1, "up": 2, "right": 3, "down": 4, "none": 5});
-	this.LootItemEnum = Object.freeze({"damage_up": 1});
+	this.LootItemEnum = Object.freeze({"damage_up": 1, "attack_speed_up": 2, "health": 3});
 	
 	this.splash_screen = new DrawableObject("images/splash.svg", [0, 0]);
 	
@@ -193,8 +193,44 @@ Game.prototype.checkDestroyedShips = function(){
 }
 
 Game.prototype.handleEnemySpawning = function(){
-	if(Math.floor(Math.random() * 100) < 1)
-		this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+	switch(this.stage){
+		case 0:
+			if((Math.random() * 150) < 1)
+				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			break;
+		case 1:
+			if((Math.random() * 100) < 1)
+				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			break;
+		case 2:
+			if((Math.random() * 100) < 2)
+				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			break;
+		case 3:
+			if((Math.random() * 100) < 3)
+				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			break;
+		case 4:
+			if((Math.random() * 90) < 3)
+				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			break;
+		case 5:
+			if((Math.random() * 80) < 3)
+				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			break;
+		case 6:
+			if((Math.random() * 80) < 4)
+				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			break;
+		case 7:
+			if((Math.random() * 70) < 5)
+				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			break;
+		case 8:
+			if((Math.random() * 70) < 5)
+				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			break;
+	}
 }
 
 Game.prototype.getLootItem = function(item){
@@ -202,15 +238,20 @@ Game.prototype.getLootItem = function(item){
 		case this.LootItemEnum.damage_up:
 			return new LootDamageUp();
 			break;
+		case this.LootItemEnum.attack_speed_up:
+			return new LootAttackSpeedUp();
+			break;
 	}
 }
 
 Game.prototype.fillShopItemList = function(){
 	this.shop_item_list.push(this.LootItemEnum.damage_up);
+	this.shop_item_list.push(this.LootItemEnum.attack_speed_up);
 }
 
 Game.prototype.fillJunkyardItemList = function(){
 	this.junkyard_item_list.push(this.LootItemEnum.damage_up);
+	this.junkyard_item_list.push(this.LootItemEnum.attack_speed_up);
 }
 
 Game.prototype.handleStage = function(){

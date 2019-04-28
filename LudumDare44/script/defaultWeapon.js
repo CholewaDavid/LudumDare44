@@ -8,6 +8,6 @@ DefaultWeapon.prototype.shoot = function(){
 	if(!this.canShoot())
 		return;
 	
-	game.shots.push(new Bullet("images/player_bullet.svg", this.getShotPosition(), [3,3], true, 20, game.degreeToRadian(0), this.damage));
+	game.shots.push(new Bullet("images/player_bullet.svg", this.getShotPosition(), [3,3], true, 20, game.degreeToRadian(0), this.getDamage()));
 	this.shot();
 }

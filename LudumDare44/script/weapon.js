@@ -8,6 +8,7 @@ function Weapon(sprite_filename, pos, shot_pos, cooldown, damage, ammo, friendly
 	this.damage = damage;
 	this.ammo = ammo;
 	this.automatic = automatic;
+	this.friendly = friendly;
 }
 
 Weapon.prototype = Object.create(DrawableObject.prototype);
@@ -26,7 +27,17 @@ Weapon.prototype.getShotPosition = function(){
 }
 
 Weapon.prototype.shot = function(){
-	this.curr_cooldown = this.cooldown;
+	if(this.friendly)
+		this.curr_cooldown = this.cooldown - (this.cooldown * 0.1 * game.player.attack_speed_boosts);
+	else
+		this.curr_cooldown = this.cooldown;
 	if(this.ammo != null)
 		this.ammo--;
+}
+
+Weapon.prototype.getDamage = function(){
+	if(this.friendly)
+		return this.damage + this.damage * 0.3 * game.player.damage_boosts;
+	else
+		return this.damage
 }

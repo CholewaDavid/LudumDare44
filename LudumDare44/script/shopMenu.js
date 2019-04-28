@@ -38,7 +38,7 @@ ShopMenu.prototype.generateChoices = function(amount){
 
 ShopMenu.prototype.generateButtons = function(){
 	for(var i = 0; i < this.choices.length; i++){
-		this.buttons.push(new LootButton([this.first_btn_pos[0] + 5 * i + this.btn_width * i, this.first_btn_pos[0]], this.choices[i]));
+		this.buttons.push(new LootButton([this.first_btn_pos[0] + 5 * i + this.btn_width * i, this.first_btn_pos[0]], this.choices[i], true));
 		if(game.player.health < this.buttons[i].price)
 			this.buttons[i].enabled = false;
 	}

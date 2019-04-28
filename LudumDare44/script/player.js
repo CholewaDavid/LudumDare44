@@ -10,8 +10,10 @@ function Player(){
 	this.inertia = 0.5;
 	this.movementEnabled = false;
 	this.shotButtonHeld = false;
+	this.max_health = 100;
 	
 	this.damage_boosts = 0;
+	this.attack_speed_boosts = 0;
 }
 
 Player.prototype = Object.create(Ship.prototype);
