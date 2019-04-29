@@ -3,7 +3,7 @@ function Game(){
 	this.player = new Player();
 	
 	this.BoundriesEnum = Object.freeze({"left": 1, "up": 2, "right": 3, "down": 4, "none": 5});
-	this.LootItemEnum = Object.freeze({"damage_up": 1, "attack_speed_up": 2, "health": 3, "rocket_launcher": 4, "max_health": 5});
+	this.LootItemEnum = Object.freeze({"damage_up": 1, "attack_speed_up": 2, "health": 3, "rocket_launcher": 4, "max_health": 5, "shotgun": 6});
 	
 	this.splash_screen = new DrawableObject("images/splash.svg", [0, 0]);
 	
@@ -281,6 +281,9 @@ Game.prototype.getLootItem = function(item){
 		case this.LootItemEnum.rocket_launcher:
 			return new LootWeaponRocketLauncher();
 			break;
+		case this.LootItemEnum.shotgun:
+			return new LootWeaponShotgun();
+			break;
 	}
 }
 
@@ -298,6 +301,7 @@ Game.prototype.fillJunkyardItemList = function(){
 
 Game.prototype.fillWeaponItemList = function(){
 	this.weapon_item_list.push(this.LootItemEnum.rocket_launcher);
+	this.weapon_item_list.push(this.LootItemEnum.shotgun);
 }
 
 Game.prototype.handleStage = function(){
