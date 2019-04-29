@@ -9,13 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="13.985119mm"
-   height="70.681549mm"
-   viewBox="0 0 52.857144 267.14287"
+   width="7.9375mm"
+   height="13.229167mm"
+   viewBox="0 0 30.000001 50.000002"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="door.svg">
+   sodipodi:docname="default_weapon.svg">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="132.3298"
-     inkscape:cy="56.79232"
+     inkscape:zoom="1.979899"
+     inkscape:cx="-60.213138"
+     inkscape:cy="12.100359"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -56,13 +56,11 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-35.714283,-25.37682)">
-    <rect
-       style="opacity:1;fill:#9b4e00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0.5;stroke-opacity:1"
+     transform="translate(-134.28516,-301.0918)">
+    <path
+       style="opacity:1;fill:#5e5e46;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.92851788;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0.5;stroke-opacity:1"
+       d="m 134.28516,301.0918 v 50 h 23.22537 v -12.05283 h 6.77463 v -25.89434 h -6.77463 V 301.0918 Z"
        id="rect812"
-       width="52.857143"
-       height="267.14285"
-       x="35.714283"
-       y="25.37682" />
+       inkscape:connector-curvature="0" />
   </g>
 </svg>

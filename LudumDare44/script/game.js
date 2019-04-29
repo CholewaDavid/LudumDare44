@@ -30,6 +30,7 @@ function Game(){
 	
 	this.shots = [];
 	this.enemyShips = [];
+	this.enemy_solids = [];
 	
 	this.shop_item_list = [];
 	this.junkyard_item_list = [];
@@ -45,6 +46,9 @@ Game.prototype.draw = function(){
 	for(var i = 0; i < this.enemyShips.length; i++)
 		this.enemyShips[i].drawWithWeapons();
 
+	for(var i = 0; i < this.enemy_solids.length; i++)
+		this.enemy_solids[i].draw();
+	
 	if(this.stage == 0)
 		this.splash_screen.draw();
 	
@@ -111,6 +115,9 @@ Game.prototype.update = function(){
 		//Enemy ships
 		for(var i = 0; i < this.enemyShips.length; i++)
 			this.enemyShips[i].updateWithWeapons();
+		//Enemy solids
+		for(var i = 0; i < this.enemy_solids.length; i++)
+			this.enemy_solids[i].update();
 		//Shots
 		for(var i = 0; i < this.shots.length; i++)
 			this.shots[i].update();
@@ -119,7 +126,7 @@ Game.prototype.update = function(){
 		this.checkDestroyedShips();
 		
 		//Shop
-		if(this.shop != null && this.enemyShips.length == 0){
+		if(this.shop != null && this.enemyShips.length == 0 && this.enemy_solids.length == 0){
 			this.shop.move(this.environmentSpeed);
 			if(this.shop.background.pos[0] <= 0 && this.player_dying_time == 0){
 				this.active_shop = true;
@@ -127,7 +134,7 @@ Game.prototype.update = function(){
 			}
 		}
 		//Main gameplay
-		else if(this.shop == null && this.stage != 0  && this.stage != 9)
+		else if(this.shop == null && this.stage != 0  && this.stage != 6)
 			this.handleEnemySpawning();
 	}
 	
@@ -160,11 +167,17 @@ Game.prototype.checkColissions = function(solid_object, sided, friendly){
 			if(this.enemyShips[i].colission(solid_object))
 				return this.enemyShips[i];
 		}
-		if(!sided || (sided && !friendly)){
-			if(this.player != null){
-				if(this.player.colission(solid_object))
-					return this.player;
-			}
+	}
+	if(!sided || (sided && !friendly)){
+		if(this.player != null){
+			if(this.player.colission(solid_object))
+				return this.player;
+		}
+	}
+	for(var i = 0; i < this.enemy_solids.length; i++){
+		if(!sided || (sided && this.enemy_solids[i].friendly != friendly)){
+			if(this.enemy_solids[i].colission(solid_object))
+				return this.enemy_solids[i];
 		}
 	}
 }
@@ -200,17 +213,23 @@ Game.prototype.degreeToRadian = function(degree){
 Game.prototype.checkShotColissions = function(){	
 	for(var i = 0; i < this.shots.length; i++){
 		if(this.isObjectOutside(this.shots[i], true) != this.BoundriesEnum.none){
-			this.shots.splice(i, 1);
+			this.shots.splice(i--, 1);
 			continue;
 		}
 		
 		var colided_objects = this.checkColissions(this.shots[i], true, this.shots[i].friendly);
 		if(colided_objects != null){
-			if(colided_objects instanceof Ship)
+			if(colided_objects instanceof Ship || colided_objects instanceof EnemySolid)
 				colided_objects.damage(this.shots[i].damage);
-			
 			this.shots.splice(i--, 1);
 			continue;
+		}
+	}
+	
+	for(var i = 0; i < this.enemy_solids.length; i++){
+		if(this.enemy_solids[i].colission(this.player)){
+			this.player.damage(this.enemy_solids[i].deal_damage);
+			this.enemy_solids.splice(i--, 1);
 		}
 	}
 }
@@ -224,45 +243,47 @@ Game.prototype.checkDestroyedShips = function(){
 			this.enemyShips.splice(i--, 1);
 		}
 	}
+	for(var i = 0; i < this.enemy_solids.length; i++){
+		if(this.enemy_solids[i].outside)
+			this.enemy_solids.splice(i--, 1);
+		else if(this.enemy_solids[i].health < 0){
+			this.points += this.enemy_solids[i].points;
+			this.enemy_solids.splice(i--, 1);
+		}
+	}
 }
 
 Game.prototype.handleEnemySpawning = function(){
 	switch(this.stage){
-		case 0:
-			if((Math.random() * 150) < 1)
-				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
-			break;
 		case 1:
-			if((Math.random() * 100) < 1)
-				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			if((Math.random() * 200) < 1)
+				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));		
 			break;
 		case 2:
-			if((Math.random() * 100) < 2)
+			if((Math.random() * 175) < 1)
 				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			if((Math.random() * 200) < 1)
+				this.enemy_solids.push(new Mine([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
 			break;
 		case 3:
-			if((Math.random() * 100) < 3)
+			if((Math.random() * 150) < 1)
 				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			if((Math.random() * 200) < 1)
+				this.enemyShips.push(new MovingEnemy([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			if((Math.random() * 150) < 1)
+				this.enemy_solids.push(new Mine([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
 			break;
 		case 4:
-			if((Math.random() * 90) < 3)
-				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			if((Math.random() * 60) < 1)
+				this.enemy_solids.push(new Meteor([Math.floor(Math.random() * (canvas.width + 300) + 200), -200]));
 			break;
 		case 5:
-			if((Math.random() * 80) < 3)
+			if((Math.random() * 125) < 1)
 				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
-			break;
-		case 6:
-			if((Math.random() * 80) < 4)
-				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
-			break;
-		case 7:
-			if((Math.random() * 70) < 5)
-				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
-			break;
-		case 8:
-			if((Math.random() * 70) < 5)
-				this.enemyShips.push(new BasicEnemyShip([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			if((Math.random() * 150) < 1)
+				this.enemyShips.push(new MovingEnemy([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
+			if((Math.random() * 100) < 1)
+				this.enemy_solids.push(new Mine([canvas.width + 100, Math.floor(Math.random() * (canvas.height - 100))]));
 			break;
 	}
 }
@@ -317,7 +338,7 @@ Game.prototype.handleStage = function(){
 			}
 		}
 
-		else if(this.stage == 9){
+		else if(this.stage == 6){
 			if(!this.boss){
 				this.spawnBoss();
 				this.end_stage = false;
