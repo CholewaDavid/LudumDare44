@@ -9,9 +9,9 @@ function Game(){
 	
 	this.runGame = false;
 	this.points = 0;
-	this.stage = 0;
-	this.distance = 0;
+	this.stage = 5;
 	this.stage_length = 300;
+	this.distance = this.stage * this.stage_length;
 	this.end_stage = false;
 	this.start_game = false;
 	this.leave_shop = false;
@@ -25,12 +25,16 @@ function Game(){
 	this.player_dying_time = 0;
 	this.player_dying_max_time = 180;
 	this.end_splash_screen = new EndScreen();
+	this.boss_dying_time = 0;
+	this.boss_dying_max_time = 300;
 	
 	this.shop = null;
 	
 	this.shots = [];
 	this.enemyShips = [];
 	this.enemy_solids = [];
+	this.scraps = [];
+	this.boss_entity = null;
 	
 	this.shop_item_list = [];
 	this.junkyard_item_list = [];
@@ -43,33 +47,38 @@ function Game(){
 
 Game.prototype.draw = function(){
 	this.background.draw();
+	for(var i = 0; i < this.scraps.length; i++)
+		this.scraps[i].draw();
+	
 	for(var i = 0; i < this.enemyShips.length; i++)
 		this.enemyShips[i].drawWithWeapons();
-
 	for(var i = 0; i < this.enemy_solids.length; i++)
 		this.enemy_solids[i].draw();
-	
-	if(this.stage == 0)
-		this.splash_screen.draw();
+
+	if(this.boss)
+		this.boss_entity.draw();
 	
 	if(this.shop != null){
 		if(this.active_shop){
-			if(this.player != null)
+			if(this.player != null && this.player.health > 0)
 				this.player.drawWithWeapons();
 			this.shop.draw();
 		}
 		else{
 			this.shop.draw();
-			if(this.player != null)
+			if(this.player != null && this.player.health > 0)
 				this.player.drawWithWeapons();
 		}
-	}
+	}	
 	else
-		if(this.player != null)
+		if(this.player != null && this.player.health > 0)
 			this.player.drawWithWeapons();
 	
 	for(var i = 0; i < this.shots.length; i++)
 		this.shots[i].draw();
+	
+	if(this.stage == 0)
+		this.splash_screen.draw();
 	
 	if(this.player_dying_time >= this.player_dying_max_time)
 		this.end_splash_screen.draw();
@@ -81,6 +90,11 @@ Game.prototype.update = function(){
 	$("#span_score")[0].innerHTML = this.points.toString() + " points";
 	
 	this.background.update();
+	for(var i = 0; i < this.scraps.length; i++){
+		this.scraps[i].update();
+		if(this.scraps[i].time_alive >= this.scraps[i].time_alive_max)
+			this.scraps.splice(i--, 1);
+	}
 	if(this.fast_travel){
 		this.fast_travel_time++;
 		if(this.fast_travel_time > this.fast_travel_max_time){
@@ -133,6 +147,17 @@ Game.prototype.update = function(){
 				this.shop.openShopMenu();
 			}
 		}
+		
+		//Boss
+		if(this.boss && !(this.boss_entity.active || this.boss_entity.intro) && this.enemyShips.length == 0 && this.enemy_solids.length == 0){
+			if(this.boss_entity.pos[0] <= 950 && !this.boss_entity.intro)
+				this.boss_entity.doIntro();
+			else if(!this.boss_entity.intro)
+				this.boss_entity.moveLeft(1);
+		}
+		else if(this.boss && (this.boss_entity.active || this.boss_entity.intro))
+			this.boss_entity.update();
+		
 		//Main gameplay
 		else if(this.shop == null && this.stage != 0  && this.stage != 6)
 			this.handleEnemySpawning();
@@ -180,6 +205,9 @@ Game.prototype.checkColissions = function(solid_object, sided, friendly){
 				return this.enemy_solids[i];
 		}
 	}
+	
+	if(this.boss && friendly)
+		return this.boss_entity.colission(solid_object);
 }
 
 Game.prototype.isObjectOutside = function(solid_object, fully_outside){
@@ -226,10 +254,21 @@ Game.prototype.checkShotColissions = function(){
 		}
 	}
 	
-	for(var i = 0; i < this.enemy_solids.length; i++){
-		if(this.enemy_solids[i].colission(this.player)){
-			this.player.damage(this.enemy_solids[i].deal_damage);
-			this.enemy_solids.splice(i--, 1);
+	if(this.player != null && this.player.health > 0){
+		for(var i = 0; i < this.enemy_solids.length; i++){
+			if(this.enemy_solids[i].colission(this.player)){
+				this.player.damage(this.enemy_solids[i].deal_damage);
+				this.enemy_solids.splice(i--, 1);
+			}
+		}
+		
+		if(this.boss && this.boss_entity.isGiantLaserActive()){
+			if(this.boss_entity.giant_laser.weapons[0].laser.colission(this.player)){
+				if(!this.boss_entity.giant_laser.weapons[0].player_hit){
+					this.player.damage(this.boss_entity.giant_laser.weapons[0].getDamage());
+					this.boss_entity.giant_laser.weapons[0].player_hit = true;
+				}
+			}
 		}
 	}
 }
@@ -251,6 +290,8 @@ Game.prototype.checkDestroyedShips = function(){
 			this.enemy_solids.splice(i--, 1);
 		}
 	}
+	if(this.boss)
+		this.boss_entity.checkDestroyed();
 }
 
 Game.prototype.handleEnemySpawning = function(){
@@ -357,6 +398,7 @@ Game.prototype.handleStage = function(){
 					this.active_shop = false;
 					this.shop.closeShopMenu();
 					this.fast_travel = true;
+					this.scraps = [];
 				}
 				if(this.leave_shop && !this.fast_travel){
 					this.leave_shop = false;			
@@ -374,6 +416,7 @@ Game.prototype.handleStage = function(){
 
 Game.prototype.spawnBoss = function(){
 	this.boss = true;
+	this.boss_entity = new Boss();
 }
 
 Game.prototype.startFastTravel = function(){

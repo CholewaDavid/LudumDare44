@@ -6,6 +6,7 @@ function Ship(sprite_filename, pos, size, friendly, health){
 	
 	this.health = health;
 	this.outside = false;
+	this.scrap_spawned = false;
 }
 
 Ship.prototype = Object.create(SidedSolidObject.prototype);
@@ -53,6 +54,10 @@ Ship.prototype.moveRightWithWeapons = function(amount){
 
 Ship.prototype.damage = function(amount){
 	this.health -= amount;
+	if(this.health <= 0 && !this.scrap_spawned){
+		for(var i = 0; i < 5; i++)
+			game.scraps.push(new Scrap(this.pos));
+	}
 }
 
 Ship.prototype.shootAll = function(){
